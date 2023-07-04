@@ -350,8 +350,9 @@
           <div id="CartDrawer-CartErrors" role="alert"></div>
         </form>
       </cart-drawer-items>
-      {% if cart.total_price > 0 %}
-      {% render 'custom-cart-upsell', upsell-collection: settings.cart_drawer_collection %}
+      {% comment %} Insert cart upsell snippet {% endcomment %}
+      {% if cart.total_price > 0 and settings.cart_drawer_collection.products %}
+        {% render 'custom-cart-upsell' %}
       {% endif %}
       <div class="drawer__footer">
         {%- if settings.show_cart_note -%}

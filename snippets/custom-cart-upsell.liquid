@@ -115,12 +115,13 @@
 
 {% endstyle %}
 
-
-
 <div class="custom-product-card-wrapper">
     <h4 class="custom-product-card-title">Vind je dit ook leuk?</h4>
+
     {% comment %} Grab the first product from the upsell collection {% endcomment %}
-    {% assign product = collections['upsell-collection'].products | first %}
+    {% comment %} {% assign product = collections['upsell-collection'].products | first %} {% endcomment %}
+    {% comment %} Grab the first product from the cart drawer collection uploaded on settings {% endcomment %}
+    {% assign product = settings.cart_drawer_collection.products | first %}
     <div class="custom-product">
         {% comment %} Left {% endcomment %}
         {% if product.featured_image %}
