@@ -119,6 +119,7 @@
 
 <div class="custom-product-card-wrapper">
     <h4 class="custom-product-card-title">Vind je dit ook leuk?</h4>
+    {% comment %} Grab the first product from the upsell collection {% endcomment %}
     {% assign product = collections['upsell-collection'].products | first %}
     <div class="custom-product">
         {% comment %} Left {% endcomment %}
@@ -131,7 +132,11 @@
                 <h4 class="custom-product-title">{{ product.title }}</h4>
                 <span class="custom-product-subtitle">
                     {% for option in product.first_available_variant.options %}
-                        {{ option }}{% unless forloop.last %} / {% endunless %}
+                        {% unless forloop.last %}
+                        {{ option | append: ' ' }}
+                        {% else %}
+                        {{ option }}
+                        {% endunless %}
                     {% endfor %}
                 </span>
             </div>
@@ -139,16 +144,19 @@
         </div>
         {% comment %} Right  {% endcomment %}
         <div class="custom-product-right">
+            {% comment %} Add to cart form {% endcomment %}
             {% form "product", product, id: 'custom-upsell-form' %}
                 {% comment %} input for quantity, productID {% endcomment %}
                 <input type="hidden" name="quantity" value="1">
                 <input type="hidden" name="id" value={{ product.first_available_variant.id }}>
+                {% comment %} Add to cart button {% endcomment %}
                 <button type="submit" class="custom-atc-btn">
                     <div class="custom-atc-text">
                         <span>{{ 'products.product.add_to_cart' | t }}</span>
                     </div>
                     <div class="custom-atc-icon">
                         {% render 'add-icon.custom' %}
+                        {% comment %} Loading spinner / hidden on mount {% endcomment %}
                         <div class="loading-overlay__spinner hidden" style="display:flex; justify-content:center;">
                             <svg
                             aria-hidden="true"
@@ -170,6 +178,7 @@
 <script>
   window.addEventListener('DOMContentLoaded', () => {
 
+  //Fetch cart drawer section using ID
     const updateCartDrawer = async () => {
       const response = await fetch(window.location.pathname + '?section_id=cart-drawer')
         .then(response => response.text())
@@ -179,6 +188,7 @@
       return response;
     };
 
+    //Function to handle form submission
     const handleFormSubmit = async (e) => {
       e.preventDefault();
 
@@ -196,7 +206,7 @@
       const loadingOverlay = form.querySelector(".loading-overlay__spinner");
       loadingOverlay.classList.remove("hidden");
 
-      // Send request to Shopify
+      // Send add product to cart request
       const response = await fetch(window.Shopify.routes.root + 'cart/add.js', {
         method: 'POST',
         headers: {
@@ -225,7 +235,7 @@
       document.querySelector("cart-drawer").innerHTML = newCartDrawer;
     };
 
-    // Attach event listener to document for form submission
+    // Attach event listener to document instead of form component for form submission due to utilization of innerHTML
     document.addEventListener("submit", async (e) => {
       if (e.target.matches("form#custom-upsell-form")) {
         handleFormSubmit(e);
