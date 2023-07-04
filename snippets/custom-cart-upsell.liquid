@@ -82,6 +82,7 @@
         border: none;
         margin: 0px;
         padding: 0px;
+        cursor: pointer;
     }
     .custom-atc-text {
         height: 100%;
@@ -175,72 +176,3 @@
         </div>
     </div>
 </div>
-
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-
-  //Fetch cart drawer section using ID
-    const updateCartDrawer = async () => {
-      const response = await fetch(window.location.pathname + '?section_id=cart-drawer')
-        .then(response => response.text())
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      return response;
-    };
-
-    //Function to handle form submission
-    const handleFormSubmit = async (e) => {
-      e.preventDefault();
-
-      // Select form
-      const form = document.querySelector("form#custom-upsell-form");
-
-      // Grab product ID from hidden input with name "id"
-      const productID = form.querySelector("input[name='id']").value;
-      const quantity = form.querySelector("input[name='quantity']").value;
-
-      // Hide button
-      const icon = form.querySelector(".custom-atc-icon svg");
-      icon.classList.add("hidden");
-      // Show loading overlay
-      const loadingOverlay = form.querySelector(".loading-overlay__spinner");
-      loadingOverlay.classList.remove("hidden");
-
-      // Send add product to cart request
-      const response = await fetch(window.Shopify.routes.root + 'cart/add.js', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          'items': [{
-            'id': productID,
-            'quantity': quantity
-          }]
-        })
-      }).then(response => response.json())
-        .catch(error => {
-          console.error('Error:', error);
-        });
-
-      // Update cart drawer
-      const cartDrawer = await updateCartDrawer();
-
-      // Format response as HTML
-      const html = document.createElement('div');
-      html.innerHTML = cartDrawer;
-
-      // Grab children HTML of cart-drawer component
-      const newCartDrawer = html.querySelector("cart-drawer").innerHTML;
-      document.querySelector("cart-drawer").innerHTML = newCartDrawer;
-    };
-
-    // Attach event listener to document instead of form component for form submission due to utilization of innerHTML
-    document.addEventListener("submit", async (e) => {
-      if (e.target.matches("form#custom-upsell-form")) {
-        handleFormSubmit(e);
-      }
-    });
-  });
-</script>
